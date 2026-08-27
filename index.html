@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hiệu Ứng Trái Tim 3D Lung Linh | Glowing Particle Heart</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Plus+Jakarta+Sans:wght@3… rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+/* ==========================================================================
+   Pure Glowing Particle Heart - Minimal & High Performance Stylesheet
+   ========================================================================== */
+ 
+:root {
+  /* Ruby Romance Color Palette (Fixed) */
+  --primary-glow: #ff2a55;
+  --secondary-glow: #ff6b8b;
+  --tertiary-glow: #ff007f;
+  --accent-gold: #ffccd5;
+  
+  --bg-dark: #05050a;
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --font-display: 'Cinzel Decorative', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --radius-full: 9999px;
+  --transition-smooth: 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+ 
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+ 
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+ 
+/* Fullscreen Canvas */
+#heartCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+ 
+#heartCanvas:active {
+  cursor: grabbing;
+}
+ 
+/* Ambient Background Lights */
+.ambient-glow {
+  position: fixed;
+  width: 50vw;
+  height: 50vw;
+  max-width: 500px;
+  max-height: 500px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+  will-change: transform;
+}
+ 
+.glow-1 {
+  top: 15%;
+  left: 20%;
+  background: radial-gradient(circle, var(--primary-glow) 0%, rgba(255, 42, 85, 0.3) 40%, transparent 70%);
+  animation: floatAmbient1 16s infinite alternate ease-in-out;
+}
+ 
+.glow-2 {
+  bottom: 15%;
+  right: 15%;
+  background: radial-gradient(circle, var(--secondary-glow) 0%, rgba(255, 107, 139, 0.3) 40%, transparent 70%);
+  animation: floatAmbient2 20s infinite alternate ease-in-out;
+}
+ 
+@keyframes floatAmbient1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(50px, 30px, 0) scale(1.1); }
+}
+ 
+@keyframes floatAmbient2 {
+  0% { transform: translate3d(0, 0, 0) scale(1.1); }
+  100% { transform: translate3d(-40px, -40px, 0) scale(0.9); }
+}
+ 
+/* ==========================================================================
+   Cinematic 3s Countdown Overlay
+   ========================================================================== */
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: radial-gradient(circle at center, rgba(10, 8, 18, 0.7) 0%, rgba(5, 5, 10, 0.95) 85%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+ 
+.countdown-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.12);
+}
+ 
+.countdown-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 48px;
+  background: rgba(22, 18, 34, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 28px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 42, 85, 0.25);
+  max-width: 380px;
+  width: 90%;
+  animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+ 
+@keyframes cardEntrance {
+  0% { opacity: 0; transform: scale(0.85) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+ 
+.countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-gold);
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+ 
+.countdown-badge i {
+  width: 14px;
+  height: 14px;
+  color: var(--secondary-glow);
+}
+ 
+.countdown-display {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+ 
+.countdown-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border-top-color: var(--primary-glow);
+  border-right-color: var(--secondary-glow);
+  animation: rotateRing 8s linear infinite;
+  box-shadow: 0 0 20px rgba(255, 42, 85, 0.3);
+}
+ 
+@keyframes rotateRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+ 
+.countdown-number {
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffffff 20%, var(--accent-gold) 60%, var(--primary-glow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 25px rgba(255, 42, 85, 0.6);
+  display: inline-block;
+  will-change: transform, opacity;
+}
+ 
+.countdown-number.pop {
+  animation: numberPulse 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+ 
+@keyframes numberPulse {
+  0% {
+	transform: scale(0.4);
+	opacity: 0;
+	filter: blur(6px);
+  }
+  40% {
+	transform: scale(1.25);
+	opacity: 1;
+	filter: blur(0px);
+  }
+  70% {
+	transform: scale(0.95);
+  }
+  100% {
+	transform: scale(1);
+	opacity: 1;
+  }
+}
+ 
+.countdown-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
+}
+ 
+/* ==========================================================================
+   Bottom Interactive Hint
+   ========================================================================== */
+.bottom-hint {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(18, 16, 28, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
+  z-index: 20;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+  opacity: 1;
+  transition: opacity var(--transition-smooth), transform var(--transition-smooth);
+}
+ 
+.bottom-hint i {
+  width: 15px;
+  height: 15px;
+  color: var(--secondary-glow);
+}
+ 
+/* ==========================================================================
+   Top Header Title Text
+   ========================================================================== */
+.top-title {
+  position: fixed;
+  top: 36px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 20;
+  pointer-events: none;
+  text-align: center;
+  font-family: 'Cinzel Decorative', 'Plus Jakarta Sans', serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #ffffff 20%, var(--accent-gold) 60%, var(--primary-glow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 18px rgba(255, 42, 85, 0.65));
+  opacity: 0;
+  transition: opacity var(--transition-smooth), transform var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.top-title.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+body.intro-mode .bottom-hint {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+
+/* ==========================================================================
+   Photo Overlay & Card Styles (1 Minute Display)
+   ========================================================================== */
+.photo-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 55;
+  background: radial-gradient(circle at center, rgba(10, 8, 18, 0.78) 0%, rgba(5, 5, 10, 0.96) 85%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.photo-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.08);
+}
+
+.photo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background: rgba(22, 18, 34, 0.85);
+  border: 1px solid rgba(255, 42, 85, 0.25);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 35px rgba(255, 42, 85, 0.3);
+  max-width: 440px;
+  width: 90%;
+  max-height: 88vh;
+  animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.photo-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(255, 42, 85, 0.12);
+  border: 1px solid rgba(255, 42, 85, 0.3);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  margin-bottom: 16px;
+}
+
+.photo-header .heart-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-glow);
+  fill: var(--primary-glow);
+}
+
+.photo-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 18px;
+  background: rgba(10, 10, 15, 0.6);
+}
+
+.photo-img {
+  width: 100%;
+  max-height: 48vh;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.photo-img:hover {
+  transform: scale(1.02);
+}
+
+.photo-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.photo-timer-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.photo-timer-badge i {
+  width: 15px;
+  height: 15px;
+  color: var(--secondary-glow);
+}
+
+.photo-timer-badge strong {
+  color: var(--primary-glow);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.skip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--primary-glow), var(--tertiary-glow));
+  border: none;
+  border-radius: var(--radius-full);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(255, 42, 85, 0.4);
+  transition: all 0.25s ease;
+}
+
+.skip-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 42, 85, 0.6);
+}
+
+.skip-btn:active {
+  transform: translateY(0);
+}
+
+.skip-btn i {
+  width: 15px;
+  height: 15px;
+}
+
+/* Responsive Rules */
+@media (max-width: 768px) {
+  .top-title {
+    top: 24px;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .bottom-hint {
+	bottom: 16px;
+	font-size: 11px;
+	padding: 6px 14px;
+	max-width: 92%;
+	white-space: normal;
+	text-align: center;
+  }
+ 
+  .countdown-card {
+	padding: 30px 24px;
+  }
+  
+  .countdown-display {
+	width: 100px;
+	height: 100px;
+  }
+ 
+  .countdown-number {
+	font-size: 56px;
+  }
+}
+ 
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+	animation-duration: 0.01ms !important;
+	animation-iteration-count: 1 !important;
+	transition-duration: 0.01ms !important;
+  }
+}
+  </style>
+</head>
+<body class="intro-mode" data-theme="ruby">
+  <!-- Canvas Background for Starfield, Firework & Glowing Heart -->
+  <canvas id="heartCanvas"></canvas>
+ 
+  <!-- Ambient Light Blobs -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+ 
+  <!-- Top Greeting Title Text -->
+  <h1 class="top-title" id="topTitle">Chúc em buổi tối vui vẻ!</h1>
+
+  <!-- Cinematic 3s Countdown Overlay -->
+  <div class="countdown-overlay" id="countdownOverlay">
+	<div class="countdown-card">
+  	<div class="countdown-badge">
+    	<i data-lucide="sparkles"></i>
+    	<span>Món Quà Bất Ngờ</span>
+  	</div>
+      
+  	<div class="countdown-display">
+    	<div class="countdown-ring"></div>
+    	<div class="countdown-number" id="countdownNum">3</div>
+  	</div>
+ 
+  	<p class="countdown-sub" id="countdownSub">Chuẩn bị khởi tạo điều kỳ diệu...</p>
+	</div>
+  </div>
+ 
+  <!-- Photo Display Overlay (Tap Image to Launch Heart) -->
+  <div class="photo-overlay hidden" id="photoOverlay">
+    <div class="photo-card" id="photoCard" style="cursor: pointer;">
+      <div class="photo-header">
+        <i data-lucide="heart" class="heart-icon"></i>
+        <span>Chạm khẽ tim anh 1 chút thôi 👇</span>
+      </div>
+      <div class="photo-wrapper" style="margin-bottom: 0;">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiKK_oDZ8xZE991PtYm6g2AfCUazdodtVaAMYjujszG_MMZOo96m4HaTQ&s=10" alt="Special Photo" class="photo-img" id="photoImg" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Interactive Hint -->
+  <div class="bottom-hint" id="bottomHint">
+	<i data-lucide="sparkles"></i>
+	<span>Chạm/Click để nổ pháo hoa • Rê chuột để xoay 3D • Cuộn chuột để phóng to/thu nhỏ</span>
+  </div>
+ 
+  <!-- All JavaScript Logic Embedded Directly -->
+  <script>
+/**
+* Pure Glowing 3D Particle Heart Simulation
+* Hardcoded: Ruby Theme, 99 BPM, 1400 Particles, 100% Glow, Silent Mode
+*/
+ 
+(function () {
+  'use strict';
+ 
+  // --- App States ---
+  const STATE = {
+	COUNTDOWN: 'COUNTDOWN',
+	PHOTO: 'PHOTO',
+	ROCKET: 'ROCKET',
+	GATHER: 'GATHER',
+	ACTIVE: 'ACTIVE'
+  };
+ 
+  let currentState = STATE.COUNTDOWN;
+  let countdownTimer = null;
+  let countdownCount = 3;
+  let photoTimerInterval = null;
+  let photoRemainingSec = 60;
+  let gatherProgress = 0;
+ 
+  // --- Configuration ---
+  const config = {
+	photoDisplayDuration: 15, // Thời gian hiển thị ảnh (tính bằng giây) - Thay đổi số này để chỉnh thời gian chờ!
+	bpm: 99,
+	particleCount: 1400,
+	glowIntensity: 1.0,
+	baseScale: 14,
+	currentScale: 14,
+	fov: 600,
+	cameraZ: -450,
+	autoRotate: false,
+	rotationSpeed: 0.006
+  };
+ 
+  // Fixed Ruby Romance Colors
+  const RUBY_COLORS = [
+	'#ff2a55', '#ff4d6d', '#ff758f', '#ff85a1', '#ff0054', '#ffffff', '#ffccd5'
+  ];
+ 
+  // Pre-rendered Sprite Cache
+  const spriteCache = {};
+  const miniHeartCache = {};
+ 
+  function createGlowSprite(color) {
+	const size = 64;
+	const offCanvas = document.createElement('canvas');
+	offCanvas.width = size;
+	offCanvas.height = size;
+	const offCtx = offCanvas.getContext('2d');
+	const half = size / 2;
+ 
+	const grad = offCtx.createRadialGradient(half, half, 0, half, half, half);
+	grad.addColorStop(0, '#ffffff');
+	grad.addColorStop(0.18, color);
+	grad.addColorStop(0.55, color);
+	grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+ 
+	offCtx.fillStyle = grad;
+	offCtx.beginPath();
+	offCtx.arc(half, half, half, 0, Math.PI * 2);
+	offCtx.fill();
+ 
+	return offCanvas;
+  }
+ 
+  function getGlowSprite(color) {
+	if (!spriteCache[color]) {
+  	spriteCache[color] = createGlowSprite(color);
+	}
+	return spriteCache[color];
+  }
+ 
+  function createMiniHeartSprite(color) {
+	const size = 32;
+	const offCanvas = document.createElement('canvas');
+	offCanvas.width = size;
+	offCanvas.height = size;
+	const offCtx = offCanvas.getContext('2d');
+    
+	const x = size / 2;
+	const y = 3;
+	const heartSize = 16;
+	const topCurveHeight = heartSize * 0.3;
+ 
+	offCtx.fillStyle = color;
+	offCtx.shadowBlur = 8;
+	offCtx.shadowColor = color;
+ 
+	offCtx.beginPath();
+	offCtx.moveTo(x, y + topCurveHeight);
+	offCtx.bezierCurveTo(x, y, x - heartSize / 2, y, x - heartSize / 2, y + topCurveHeight);
+	offCtx.bezierCurveTo(x - heartSize / 2, y + (heartSize + topCurveHeight) / 2, x, y + (heartSize + topCurveHeight) / 1.4, x, y + heartSize);
+	offCtx.bezierCurveTo(x, y + (heartSize + topCurveHeight) / 1.4, x + heartSize / 2, y + (heartSize + topCurveHeight) / 2, x + heartSize / 2, y + topCurveHeight);
+	offCtx.bezierCurveTo(x + heartSize / 2, y, x, y, x, y + topCurveHeight);
+	offCtx.closePath();
+	offCtx.fill();
+ 
+	return offCanvas;
+  }
+ 
+  function getMiniHeartSprite(color) {
+	if (!miniHeartCache[color]) {
+  	miniHeartCache[color] = createMiniHeartSprite(color);
+	}
+	return miniHeartCache[color];
+  }
+ 
+  // DOM Elements
+  const canvas = document.getElementById('heartCanvas');
+  const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+  const countdownOverlay = document.getElementById('countdownOverlay');
+  const countdownNum = document.getElementById('countdownNum');
+  const countdownSub = document.getElementById('countdownSub');
+ 
+  // Simulation Variables
+  let width = 0;
+  let height = 0;
+  let heartParticles = [];
+  let stardustParticles = [];
+  let burstParticles = [];
+  let shockwaves = [];
+  let cursorTrails = [];
+  let rockets = [];
+ 
+  // Interaction State (Initial ~25% isometric tilt angle, no continuous auto-rotation)
+  let rotX = 0.12;
+  let rotY = 0.40;
+  let targetRotX = 0.12;
+  let targetRotY = 0.40;
+  let isDragging = false;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
+  let lastTouchDist = 0;
+ 
+  // --- Fast Parametric Heart Math ---
+  function heartPoint(t) {
+	const sinT = Math.sin(t);
+	const x = 16 * sinT * sinT * sinT;
+	const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+	return { x, y };
+  }
+
+  // --- Arc-Length Parameterized Uniform Heart Sampling (Zero Bunching, Perfectly Even Distribution) ---
+  const ARC_STEPS = 1200;
+  const heartArcTable = [];
+  let heartTotalArcLength = 0;
+
+  function initHeartArcTable() {
+	heartArcTable.length = 0;
+	heartTotalArcLength = 0;
+
+	let prevPoint = heartPoint(0);
+	heartArcTable.push({ s: 0, x: prevPoint.x, y: prevPoint.y });
+
+	for (let i = 1; i <= ARC_STEPS; i++) {
+  	const t = (i / ARC_STEPS) * Math.PI * 2;
+  	const pt = heartPoint(t);
+  	const dx = pt.x - prevPoint.x;
+  	const dy = pt.y - prevPoint.y;
+  	const ds = Math.sqrt(dx * dx + dy * dy);
+  	heartTotalArcLength += ds;
+  	heartArcTable.push({ s: heartTotalArcLength, x: pt.x, y: pt.y });
+  	prevPoint = pt;
+	}
+  }
+
+  function getUniformHeartPoint() {
+	if (heartTotalArcLength === 0) initHeartArcTable();
+	const targetS = Math.random() * heartTotalArcLength;
+	let low = 0, high = ARC_STEPS;
+	while (low <= high) {
+  	const mid = (low + high) >> 1;
+  	if (heartArcTable[mid].s < targetS) {
+    	low = mid + 1;
+  	} else {
+    	high = mid - 1;
+  	}
+	}
+	const idx = Math.min(ARC_STEPS, Math.max(1, low));
+	const p0 = heartArcTable[idx - 1];
+	const p1 = heartArcTable[idx];
+	const frac = (p1.s > p0.s) ? (targetS - p0.s) / (p1.s - p0.s) : 0;
+	return {
+  	x: p0.x + (p1.x - p0.x) * frac,
+  	y: p0.y + (p1.y - p0.y) * frac
+	};
+  }
+ 
+  function getThemeColor() {
+	return RUBY_COLORS[Math.floor(Math.random() * RUBY_COLORS.length)];
+  }
+ 
+  // --- Rocket Class ---
+  class Rocket {
+	constructor(startX, startY, targetX, targetY) {
+  	this.x = startX;
+  	this.y = startY;
+  	this.targetX = targetX;
+  	this.targetY = targetY;
+  	const totalSteps = 42;
+  	this.vx = (targetX - startX) / totalSteps;
+  	this.vy = (targetY - startY) / totalSteps;
+  	this.sprite = getGlowSprite('#ffffff');
+  	this.steps = 0;
+  	this.maxSteps = totalSteps;
+	}
+ 
+	updateAndDraw(ctx) {
+  	this.x += this.vx;
+  	this.y += this.vy;
+  	this.steps++;
+ 
+  	// Spark trail
+  	for (let i = 0; i < 3; i++) {
+    	cursorTrails.push(new CursorTrail(
+      	this.x + (Math.random() - 0.5) * 6,
+      	this.y + (Math.random() - 0.5) * 6
+    	));
+  	}
+ 
+  	ctx.globalAlpha = 1.0;
+  	ctx.drawImage(this.sprite, this.x - 10, this.y - 10, 20, 20);
+ 
+  	if (this.steps >= this.maxSteps || this.y <= this.targetY) {
+    	return false;
+  	}
+  	return true;
+	}
+  }
+ 
+  // --- Heart Particle Class (Plump Convex 3D Dome & Uniform Surface Distribution) ---
+  class HeartParticle {
+	constructor(layer = 'shell') {
+  	this.layer = layer;
+  	this.reset();
+	}
+
+	reset() {
+  	const basePoint = getUniformHeartPoint();
+
+  	if (this.layer === 'shell') {
+    	// Archimedes uniform 3D surface area sampling (flawlessly uniform density across entire 3D shell)
+    	// V in [0.01, 0.99] is uniform depth factor; r = sqrt(1 - V^2) is radius factor
+    	const V = Math.random() * 0.98 + 0.01;
+    	const zFactor = V;
+    	const r = Math.sqrt(1 - V * V);
+    	const side = Math.random() < 0.5 ? 1 : -1;
+
+    	this.baseX = basePoint.x * r;
+    	this.baseY = basePoint.y * r;
+
+    	// Height normalized: 0 at bottom tip (y=17), 1 at top lobes (y=-16.5)
+    	const normH = Math.max(0, Math.min(1, (17 - this.baseY) / 33.5));
+    	// Plump, rounded 3D depth profile: center and lobes are full and convex (NOT sunken)
+    	const maxDepth = 11.0 * Math.sqrt(normH) * (1.2 - 0.2 * normH);
+
+    	this.baseZ = side * (zFactor * maxDepth) + (Math.random() - 0.5) * 0.4;
+    	this.size = Math.random() * 5.2 + 3.6;
+    	this.alpha = Math.random() * 0.30 + 0.45;
+    	this.displacementPower = 1.0;
+  	} else {
+    	// 'outer-dust' / aura: delicate shimmering sparks floating loosely around the shell
+    	const spread = Math.random() * 0.20 + 1.05;
+    	this.baseX = basePoint.x * spread;
+    	this.baseY = basePoint.y * spread;
+
+    	const normH = Math.max(0, Math.min(1, (17 - this.baseY) / 33.5));
+    	const maxDepth = 11.0 * Math.sqrt(normH) * (1.2 - 0.2 * normH);
+
+    	this.baseZ = (Math.random() - 0.5) * maxDepth * 1.8;
+    	this.size = Math.random() * 3.6 + 2.0;
+    	this.alpha = Math.random() * 0.20 + 0.15;
+    	this.displacementPower = 1.4;
+  	}
+
+  	// Normalized 3D direction vector centered around heart centroid (y ~ 1.5) for natural radial pulsation
+  	const centerY = 1.5;
+  	const dx = this.baseX;
+  	const dy = this.baseY - centerY;
+  	const dz = this.baseZ;
+  	const dist3D = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+  	this.dirX = dx / dist3D;
+  	this.dirY = dy / dist3D;
+  	this.dirZ = dz / dist3D;
+  	this.distFromCenter = dist3D;
+ 
+  	// Unique natural elasticity & flutter
+  	this.elasticity = Math.random() * 0.4 + 0.8;
+  	this.flutterSpeed = Math.random() * 0.05 + 0.02;
+  	this.flutterPhase = Math.random() * Math.PI * 2;
+ 
+  	this.x = 0;
+  	this.y = 0;
+  	this.z = 0;
+  	this.vx = 0;
+  	this.vy = 0;
+  	this.vz = 0;
+ 
+  	this.color = getThemeColor();
+  	this.sprite = getGlowSprite(this.color);
+  	this.blinkSpeed = Math.random() * 0.04 + 0.015;
+  	this.blinkPhase = Math.random() * Math.PI * 2;
+	}
+ 
+	explodeAsFirework(burstForce = 35) {
+  	const angle1 = Math.random() * Math.PI * 2;
+  	const angle2 = (Math.random() - 0.5) * Math.PI;
+  	const force = Math.random() * burstForce + 10;
+ 
+  	this.x = (Math.random() - 0.5) * 10;
+  	this.y = (Math.random() - 0.5) * 10;
+  	this.z = (Math.random() - 0.5) * 10;
+ 
+  	this.vx = Math.cos(angle1) * Math.cos(angle2) * force;
+  	this.vy = Math.sin(angle1) * Math.cos(angle2) * force;
+  	this.vz = Math.sin(angle2) * force;
+	}
+ 
+	updateAndDraw(ctx, beatPulse, cosY, sinY, cosX, sinX, halfW, halfH) {
+  	this.blinkPhase += this.blinkSpeed;
+  	const currentAlpha = this.alpha * (0.75 + 0.25 * Math.sin(this.blinkPhase));
+ 
+  	// Organic micro-flutter
+  	this.flutterPhase += this.flutterSpeed;
+  	const flutterX = Math.sin(this.flutterPhase) * 0.25;
+  	const flutterY = Math.cos(this.flutterPhase * 1.2) * 0.25;
+ 
+  	// Non-linear fluid displacement along 3D radial normal direction
+  	const dispAmount = beatPulse * 3.8 * this.displacementPower * this.elasticity;
+  	const curBaseX = this.baseX + this.dirX * dispAmount + flutterX;
+  	const curBaseY = this.baseY + this.dirY * dispAmount + flutterY;
+  	const curBaseZ = this.baseZ + this.dirZ * dispAmount;
+ 
+  	const px = curBaseX * config.currentScale;
+  	const py = curBaseY * config.currentScale;
+  	const pz = curBaseZ * config.currentScale;
+ 
+  	// 3D Rotation
+  	const x1 = px * cosY - pz * sinY;
+  	const z1 = px * sinY + pz * cosY;
+  	const y1 = py * cosX - z1 * sinX;
+  	const z2 = py * sinX + z1 * cosX;
+ 
+  	this.x += this.vx;
+  	this.y += this.vy;
+  	this.z += this.vz;
+ 
+  	this.vx *= 0.91;
+  	this.vy *= 0.91;
+  	this.vz *= 0.91;
+ 
+  	let springFactor = 0.14;
+  	if (currentState === STATE.GATHER) {
+    	springFactor = 0.03 + 0.11 * gatherProgress;
+  	}
+ 
+  	this.x += (x1 - this.x) * springFactor;
+  	this.y += (y1 - this.y) * springFactor;
+  	this.z += (z2 - this.z) * springFactor;
+ 
+  	// Projection
+  	const distance = config.fov / (config.fov + this.z - config.cameraZ);
+  	const projX = halfW + this.x * distance;
+  	const projY = halfH + this.y * distance;
+  	const drawSize = this.size * distance * config.glowIntensity;
+  	const halfSize = drawSize * 0.5;
+ 
+  	ctx.globalAlpha = Math.min(1, Math.max(0, currentAlpha * distance));
+  	ctx.drawImage(this.sprite, projX - halfSize, projY - halfSize, drawSize, drawSize);
+	}
+  }
+ 
+  // Floating Stardust (Rising from bottom of screen, fading out at 30% height of the heart)
+  class Stardust {
+	constructor() {
+  	this.reset(true);
+	}
+
+	reset(initial = false) {
+  	this.x = (Math.random() - 0.5) * (width || 800) * 1.3;
+  	// Spawn Y in 3D world coordinates:
+  	// y = 270 is bottom tip of heart, y = 110 is 30% height of heart, y = 480 is bottom of screen
+  	this.y = initial
+    	? (110 + Math.random() * 370)  // Initial distribution from bottom of screen up to 30% height of heart
+    	: (320 + Math.random() * 160);  // Respawns below/at bottom tip of heart down to bottom of screen
+
+  	this.z = (Math.random() - 0.5) * 450;
+  	this.vx = (Math.random() - 0.5) * 0.3;
+  	this.vy = -(Math.random() * 0.55 + 0.3); // Smooth upward rise from bottom
+
+  	this.size = Math.random() * 3.8 + 2.0;
+  	this.alpha = Math.random() * 0.45 + 0.35;
+
+  	// Standard Ruby theme colors only
+  	this.color = getThemeColor();
+  	this.sprite = getGlowSprite(this.color);
+
+  	this.life = 0;
+  	this.maxLife = Math.random() * 220 + 140;
+	}
+
+	updateAndDraw(ctx, halfW, halfH) {
+  	this.x += this.vx;
+  	this.y += this.vy;
+  	this.life++;
+
+  	const yTip = 270;       // World Y of bottom tip of heart
+  	const yCutoff = 110;    // World Y corresponding to 30% height of heart
+
+  	// STRICT CUTOFF: Reset when particle reaches 30% height of heart or max life ends
+  	if (this.y <= yCutoff || this.life > this.maxLife) {
+    	this.reset(false);
+  	}
+
+  	// Fade gradient: Full brightness from bottom of screen up to bottom tip, then fades 1.0 -> 0.0 into 30% height of heart
+  	let fade = 1.0;
+  	if (this.y > yTip) {
+    	fade = 1.0;
+  	} else if (this.y <= yCutoff) {
+    	fade = 0.0;
+  	} else {
+    	fade = (this.y - yCutoff) / (yTip - yCutoff);
+  	}
+
+  	const lifeProgress = this.life / this.maxLife;
+  	const fadeAlpha = this.alpha * fade * (1 - lifeProgress * 0.4);
+
+  	const distance = config.fov / (config.fov + this.z - config.cameraZ);
+  	const projX = halfW + this.x * distance;
+  	const projY = halfH + this.y * distance;
+  	const drawSize = this.size * distance;
+  	const halfSize = drawSize * 0.5;
+
+  	ctx.globalAlpha = Math.max(0, Math.min(1, fadeAlpha));
+  	ctx.drawImage(this.sprite, projX - halfSize, projY - halfSize, drawSize, drawSize);
+	}
+  }
+ 
+  // Fireworks Burst Particle
+  class BurstParticle {
+	constructor(x, y) {
+  	this.x = x;
+  	this.y = y;
+  	const angle = Math.random() * Math.PI * 2;
+  	const speed = Math.random() * 8 + 2.5;
+  	this.vx = Math.cos(angle) * speed;
+  	this.vy = Math.sin(angle) * speed;
+  	this.gravity = 0.06;
+  	this.drag = 0.955;
+  	this.size = Math.random() * 12 + 8;
+  	this.color = getThemeColor();
+  	this.isHeart = Math.random() > 0.5;
+  	this.sprite = this.isHeart ? getMiniHeartSprite(this.color) : getGlowSprite(this.color);
+  	this.alpha = 1.0;
+  	this.decay = Math.random() * 0.02 + 0.015;
+	}
+ 
+	updateAndDraw(ctx) {
+  	this.x += this.vx;
+  	this.y += this.vy;
+  	this.vy += this.gravity;
+  	this.vx *= this.drag;
+  	this.vy *= this.drag;
+  	this.alpha -= this.decay;
+ 
+  	if (this.alpha <= 0) return false;
+ 
+  	ctx.globalAlpha = this.alpha;
+  	const half = this.size * 0.5;
+  	ctx.drawImage(this.sprite, this.x - half, this.y - half, this.size, this.size);
+  	return true;
+	}
+  }
+ 
+  // Shockwave Ring
+  class Shockwave {
+	constructor(x, y) {
+  	this.x = x;
+  	this.y = y;
+  	this.radius = 12;
+  	this.maxRadius = Math.min(width, height) * 0.45;
+  	this.alpha = 0.7;
+  	this.color = '#ff2a55';
+  	this.speed = 4.5;
+	}
+ 
+	updateAndDraw(ctx) {
+  	this.radius += this.speed;
+  	this.alpha -= 0.02;
+ 
+  	if (this.alpha <= 0 || this.radius >= this.maxRadius) return false;
+ 
+  	ctx.globalAlpha = this.alpha;
+  	ctx.strokeStyle = this.color;
+  	ctx.lineWidth = 2.5;
+  	ctx.beginPath();
+  	ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+  	ctx.stroke();
+  	return true;
+	}
+  }
+ 
+  // Cursor Trail
+  class CursorTrail {
+	constructor(x, y) {
+  	this.x = x + (Math.random() - 0.5) * 8;
+  	this.y = y + (Math.random() - 0.5) * 8;
+  	this.vx = (Math.random() - 0.5) * 1.2;
+  	this.vy = (Math.random() - 0.5) * 1.2 - 0.4;
+  	this.size = Math.random() * 8 + 5;
+  	this.alpha = 0.75;
+  	this.color = getThemeColor();
+  	this.sprite = getGlowSprite(this.color);
+  	this.decay = 0.035;
+	}
+ 
+	updateAndDraw(ctx) {
+  	this.x += this.vx;
+  	this.y += this.vy;
+  	this.alpha -= this.decay;
+ 
+  	if (this.alpha <= 0) return false;
+ 
+  	ctx.globalAlpha = this.alpha;
+  	const half = this.size * 0.5;
+  	ctx.drawImage(this.sprite, this.x - half, this.y - half, this.size, this.size);
+  	return true;
+	}
+  }
+ 
+  // --- Particle Initialization ---
+  function initParticles() {
+	initHeartArcTable();
+	heartParticles = [];
+	stardustParticles = [];
+
+	const total = config.particleCount; // 1400
+	const shellCount = Math.floor(total * 0.88); // 88% (~1232 particles) uniformly distributed across the 3D plump shell
+	const auraCount = total - shellCount;        // 12% (~168 particles) delicate ambient aura sparks
+
+	for (let i = 0; i < shellCount; i++) heartParticles.push(new HeartParticle('shell'));
+	for (let i = 0; i < auraCount; i++) heartParticles.push(new HeartParticle('outer-dust'));
+
+	const stardustCount = 140;
+	for (let i = 0; i < stardustCount; i++) stardustParticles.push(new Stardust());
+  }
+ 
+  // Trigger Fireworks Burst on Click/Tap
+  function triggerHeartBurst(customX, customY) {
+	const originX = customX !== undefined ? customX : width / 2;
+	const originY = customY !== undefined ? customY : height / 2;
+ 
+	for (let i = 0; i < heartParticles.length; i++) {
+  	const p = heartParticles[i];
+  	const angle = Math.random() * Math.PI * 2;
+  	const force = Math.random() * 22 + 8;
+  	p.vx += Math.cos(angle) * force;
+  	p.vy += Math.sin(angle) * force;
+  	p.vz += (Math.random() - 0.5) * force;
+	}
+ 
+	const burstCount = 60;
+	for (let i = 0; i < burstCount; i++) {
+  	burstParticles.push(new BurstParticle(originX, originY));
+	}
+ 
+	shockwaves.push(new Shockwave(originX, originY));
+  }
+ 
+  // --- Intro Sequence: 3s Countdown -> 1-Min Photo Display -> Rocket Launch ---
+  function startIntroCountdown() {
+	if (countdownTimer) clearInterval(countdownTimer);
+	if (photoTimerInterval) clearInterval(photoTimerInterval);
+
+	currentState = STATE.COUNTDOWN;
+	countdownCount = 3;
+	gatherProgress = 0;
+	rockets = [];
+
+	document.body.classList.add('intro-mode');
+	countdownOverlay.classList.remove('hidden');
+	const photoOverlayEl = document.getElementById('photoOverlay');
+	if (photoOverlayEl) photoOverlayEl.classList.add('hidden');
+
+	const topTitleEl = document.getElementById('topTitle');
+	if (topTitleEl) topTitleEl.classList.remove('visible');
+
+	updateCountdownDisplay(3, 'Chuẩn bị khởi tạo điều kỳ diệu...');
+
+	countdownTimer = setInterval(() => {
+  	countdownCount--;
+  	if (countdownCount === 2) {
+    	updateCountdownDisplay(2, 'Gom những vì sao trong vũ trụ...');
+  	} else if (countdownCount === 1) {
+    	updateCountdownDisplay(1, 'Thắp sáng pháo hoa tình yêu...');
+  	} else if (countdownCount <= 0) {
+    	clearInterval(countdownTimer);
+    	countdownTimer = null;
+    	updateCountdownDisplay('✨', 'Bùng nổ yêu thương!');
+
+    	setTimeout(() => {
+      	countdownOverlay.classList.add('hidden');
+      	showPhotoOverlay();
+    	}, 400);
+  	}
+	}, 1000);
+  }
+
+  function showPhotoOverlay() {
+	currentState = STATE.PHOTO;
+	photoRemainingSec = config.photoDisplayDuration || 60;
+
+	// Show top title text "Chạm khẽ tim anh 1 chút thôi ✨" after 3s countdown!
+	const topTitleEl = document.getElementById('topTitle');
+	if (topTitleEl) topTitleEl.classList.add('visible');
+
+	const photoOverlayEl = document.getElementById('photoOverlay');
+	const photoCardEl = document.getElementById('photoCard');
+
+	if (photoOverlayEl) photoOverlayEl.classList.remove('hidden');
+
+	// Tapping/clicking on the photo card immediately launches the rocket & 3D heart!
+	if (photoCardEl) {
+  	photoCardEl.onclick = (e) => {
+    	e.stopPropagation();
+    	finishPhotoDisplay();
+  	};
+	}
+	if (photoOverlayEl) {
+  	photoOverlayEl.onclick = () => {
+    	finishPhotoDisplay();
+  	};
+	}
+
+	if (photoTimerInterval) clearInterval(photoTimerInterval);
+
+	photoTimerInterval = setInterval(() => {
+  	photoRemainingSec--;
+  	if (photoRemainingSec <= 0) {
+    	finishPhotoDisplay();
+  	}
+	}, 1000);
+  }
+
+  function finishPhotoDisplay() {
+	if (photoTimerInterval) {
+  	clearInterval(photoTimerInterval);
+  	photoTimerInterval = null;
+	}
+	const photoOverlayEl = document.getElementById('photoOverlay');
+	if (photoOverlayEl) photoOverlayEl.classList.add('hidden');
+
+	setTimeout(() => {
+  	launchFireworkRocket();
+	}, 400);
+  }
+
+  function updateCountdownDisplay(text, subText) {
+	countdownNum.textContent = text;
+	countdownNum.classList.remove('pop');
+	void countdownNum.offsetWidth;
+	countdownNum.classList.add('pop');
+	if (subText) countdownSub.textContent = subText;
+  }
+
+  function launchFireworkRocket() {
+	currentState = STATE.ROCKET;
+	const targetX = width / 2;
+	const targetY = height * 0.48;
+	const rocket = new Rocket(width / 2, height + 20, targetX, targetY);
+	rockets.push(rocket);
+  }
+
+  function explodeRocketAndFormHeart(originX, originY) {
+	currentState = STATE.GATHER;
+	gatherProgress = 0;
+ 
+	for (let i = 0; i < heartParticles.length; i++) {
+  	heartParticles[i].explodeAsFirework(38);
+	}
+ 
+	for (let i = 0; i < 70; i++) {
+  	burstParticles.push(new BurstParticle(originX, originY));
+	}
+	shockwaves.push(new Shockwave(originX, originY));
+	setTimeout(() => shockwaves.push(new Shockwave(originX, originY)), 120);
+ 
+	const gatherStartTime = performance.now();
+	const gatherDuration = 1800;
+ 
+	function stepGather(now) {
+  	const elapsed = now - gatherStartTime;
+  	gatherProgress = Math.min(1.0, elapsed / gatherDuration);
+ 
+  	if (gatherProgress < 1.0 && currentState === STATE.GATHER) {
+    	requestAnimationFrame(stepGather);
+  	} else if (currentState === STATE.GATHER) {
+    	currentState = STATE.ACTIVE;
+    	document.body.classList.remove('intro-mode');
+  	}
+	}
+	requestAnimationFrame(stepGather);
+  }
+ 
+  // --- Heartbeat EKG Displacement Curve (99 BPM) ---
+  let beatPhase = 0;
+ 
+  function calculateHeartbeat(timeDelta) {
+	if (currentState === STATE.COUNTDOWN || currentState === STATE.ROCKET || !config.bpm) {
+  	return 0.0;
+	}
+ 
+	const cycleDuration = 60 / config.bpm; // 99 BPM (~0.606s per cycle)
+	beatPhase += timeDelta / cycleDuration;
+	if (beatPhase >= 1) {
+  	beatPhase -= 1;
+	}
+ 
+	let pulse = 0.0;
+	// Primary contraction (Lub) - sharp dynamic outward pulse
+	if (beatPhase < 0.16) {
+  	const p = beatPhase / 0.16;
+  	pulse = Math.sin(p * Math.PI); // 0 -> 1 -> 0
+	}
+	// Secondary contraction (Dub) - softer secondary flutter
+	else if (beatPhase >= 0.20 && beatPhase < 0.34) {
+  	const p = (beatPhase - 0.20) / 0.14;
+  	pulse = 0.52 * Math.sin(p * Math.PI); // 0 -> 0.52 -> 0
+	}
+ 
+	return pulse;
+  }
+ 
+  // --- Ultra-Fast Animation Loop ---
+  let lastTimestamp = 0;
+ 
+  function animate(timestamp) {
+	if (!lastTimestamp) lastTimestamp = timestamp;
+	const timeDelta = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+	lastTimestamp = timestamp;
+ 
+	const minDim = Math.min(width, height);
+	config.currentScale = config.baseScale * (minDim / 700);
+ 
+	const beatPulse = calculateHeartbeat(timeDelta);
+ 
+	if (config.autoRotate && !isDragging && currentState === STATE.ACTIVE) {
+  	targetRotY += config.rotationSpeed;
+  	targetRotX = Math.sin(timestamp * 0.0008) * 0.12;
+	}
+ 
+	rotX += (targetRotX - rotX) * 0.08;
+	rotY += (targetRotY - rotY) * 0.08;
+ 
+	const cosY = Math.cos(rotY);
+	const sinY = Math.sin(rotY);
+	const cosX = Math.cos(rotX);
+	const sinX = Math.sin(rotX);
+	const halfW = width * 0.5;
+	const halfH = height * 0.5;
+ 
+	ctx.globalCompositeOperation = 'source-over';
+	ctx.fillStyle = '#05050a';
+	ctx.fillRect(0, 0, width, height);
+ 
+	ctx.globalCompositeOperation = 'lighter';
+ 
+	// 1. Draw Space Stardust
+	for (let i = 0; i < stardustParticles.length; i++) {
+  	stardustParticles[i].updateAndDraw(ctx, halfW, halfH);
+	}
+ 
+	// 2. Draw Rockets
+	for (let i = rockets.length - 1; i >= 0; i--) {
+  	const r = rockets[i];
+  	if (!r.updateAndDraw(ctx)) {
+    	explodeRocketAndFormHeart(r.targetX, r.targetY);
+    	rockets.splice(i, 1);
+  	}
+	}
+ 
+	// 3. Draw Heart Particles (Displacement-driven pulsation)
+	if (currentState === STATE.GATHER || currentState === STATE.ACTIVE) {
+  	for (let i = 0; i < heartParticles.length; i++) {
+    	heartParticles[i].updateAndDraw(ctx, beatPulse, cosY, sinY, cosX, sinX, halfW, halfH);
+  	}
+	}
+ 
+	// 4. Draw Burst Fireworks
+	for (let i = burstParticles.length - 1; i >= 0; i--) {
+  	if (!burstParticles[i].updateAndDraw(ctx)) {
+    	burstParticles.splice(i, 1);
+  	}
+	}
+ 
+	// 5. Draw Cursor Trails
+	for (let i = cursorTrails.length - 1; i >= 0; i--) {
+  	if (!cursorTrails[i].updateAndDraw(ctx)) {
+    	cursorTrails.splice(i, 1);
+  	}
+	}
+ 
+	// 6. Draw Shockwaves
+	for (let i = shockwaves.length - 1; i >= 0; i--) {
+  	if (!shockwaves[i].updateAndDraw(ctx)) {
+    	shockwaves.splice(i, 1);
+  	}
+	}
+ 
+	requestAnimationFrame(animate);
+  }
+ 
+  // --- Resize Handler ---
+  function resize() {
+	const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+	width = window.innerWidth;
+	height = window.innerHeight;
+ 
+	canvas.width = Math.floor(width * dpr);
+	canvas.height = Math.floor(height * dpr);
+	canvas.style.width = width + 'px';
+	canvas.style.height = height + 'px';
+ 
+	ctx.scale(dpr, dpr);
+  }
+ 
+  // --- Event Listeners & Interactions ---
+  window.addEventListener('resize', resize);
+ 
+  canvas.addEventListener('mousedown', (e) => {
+	if (currentState !== STATE.ACTIVE) return;
+	isDragging = true;
+	lastMouseX = e.clientX;
+	lastMouseY = e.clientY;
+  });
+ 
+  window.addEventListener('mouseup', () => {
+	isDragging = false;
+  });
+ 
+  window.addEventListener('mousemove', (e) => {
+	if (Math.random() > 0.5) {
+  	cursorTrails.push(new CursorTrail(e.clientX, e.clientY));
+	}
+ 
+	if (isDragging && currentState === STATE.ACTIVE) {
+  	const dx = e.clientX - lastMouseX;
+  	const dy = e.clientY - lastMouseY;
+  	targetRotY += dx * 0.008;
+  	targetRotX -= dy * 0.008;
+  	lastMouseX = e.clientX;
+  	lastMouseY = e.clientY;
+	}
+  });
+ 
+  canvas.addEventListener('click', (e) => {
+	if (currentState === STATE.ACTIVE) {
+  	triggerHeartBurst(e.clientX, e.clientY);
+	}
+  });
+ 
+  window.addEventListener('wheel', (e) => {
+	if (currentState !== STATE.ACTIVE) return;
+	config.baseScale += e.deltaY * -0.012;
+	config.baseScale = Math.max(6, Math.min(28, config.baseScale));
+  }, { passive: true });
+ 
+  // Touch Support
+  canvas.addEventListener('touchstart', (e) => {
+	if (e.touches.length === 1) {
+  	if (currentState === STATE.ACTIVE) isDragging = true;
+  	lastMouseX = e.touches[0].clientX;
+  	lastMouseY = e.touches[0].clientY;
+  	cursorTrails.push(new CursorTrail(lastMouseX, lastMouseY));
+	} else if (e.touches.length === 2 && currentState === STATE.ACTIVE) {
+  	lastTouchDist = Math.hypot(
+    	e.touches[0].clientX - e.touches[1].clientX,
+    	e.touches[0].clientY - e.touches[1].clientY
+  	);
+	}
+  }, { passive: true });
+ 
+  canvas.addEventListener('touchmove', (e) => {
+	if (e.touches.length === 1 && isDragging && currentState === STATE.ACTIVE) {
+  	const dx = e.touches[0].clientX - lastMouseX;
+  	const dy = e.touches[0].clientY - lastMouseY;
+  	targetRotY += dx * 0.01;
+  	targetRotX -= dy * 0.01;
+  	lastMouseX = e.touches[0].clientX;
+  	lastMouseY = e.touches[0].clientY;
+  	cursorTrails.push(new CursorTrail(lastMouseX, lastMouseY));
+	} else if (e.touches.length === 2 && currentState === STATE.ACTIVE) {
+  	const currentDist = Math.hypot(
+    	e.touches[0].clientX - e.touches[1].clientX,
+    	e.touches[0].clientY - e.touches[1].clientY
+  	);
+  	if (lastTouchDist > 0) {
+    	const factor = currentDist / lastTouchDist;
+    	config.baseScale = Math.max(6, Math.min(28, config.baseScale * factor));
+  	}
+  	lastTouchDist = currentDist;
+	}
+  }, { passive: true });
+ 
+  canvas.addEventListener('touchend', (e) => {
+	if (e.touches.length === 0) {
+  	isDragging = false;
+  	lastTouchDist = 0;
+	}
+  });
+ 
+  let lastTapTime = 0;
+  canvas.addEventListener('touchend', (e) => {
+	const currentTime = new Date().getTime();
+	const tapLength = currentTime - lastTapTime;
+	if (tapLength < 300 && tapLength > 0 && currentState === STATE.ACTIVE) {
+  	const touch = e.changedTouches[0];
+  	triggerHeartBurst(touch.clientX, touch.clientY);
+	}
+	lastTapTime = currentTime;
+  });
+ 
+  window.addEventListener('keydown', (e) => {
+	if (e.key === ' ') {
+  	e.preventDefault();
+  	if (currentState === STATE.ACTIVE) {
+    	triggerHeartBurst(width / 2, height / 2);
+  	}
+	}
+  });
+ 
+  // --- Initial Launch ---
+  if (window.lucide) {
+	lucide.createIcons();
+  }
+  resize();
+  initParticles();
+  startIntroCountdown();
+  requestAnimationFrame(animate);
+ 
+})();
+  </script>
+</body>
+</html>
