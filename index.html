@@ -491,6 +491,50 @@ body.intro-mode .bottom-hint {
   }
 }
  
+/* Floating Music Toggle Button */
+.music-toggle-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(18, 16, 28, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 60;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.music-toggle-btn:hover {
+  transform: scale(1.08);
+  border-color: rgba(255, 42, 85, 0.5);
+  color: var(--primary-glow);
+}
+
+.music-toggle-btn.playing {
+  animation: pulseMusicBtn 2s infinite ease-in-out;
+  border-color: rgba(255, 42, 85, 0.6);
+  color: var(--primary-glow);
+}
+
+@keyframes pulseMusicBtn {
+  0%, 100% { box-shadow: 0 0 12px rgba(255, 42, 85, 0.4); }
+  50% { box-shadow: 0 0 24px rgba(255, 42, 85, 0.8); }
+}
+
+.music-toggle-btn i {
+  width: 20px;
+  height: 20px;
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -502,6 +546,16 @@ body.intro-mode .bottom-hint {
   </style>
 </head>
 <body class="intro-mode" data-theme="ruby">
+  <!-- Background Music (Thay đổi link file MP3 Violin không lời ở đây) -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="./theme_music.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- Floating Music Toggle Button -->
+  <button class="music-toggle-btn" id="musicToggleBtn" aria-label="Bật/Tắt Nhạc" title="Bật/Tắt Nhạc Nền">
+    <i data-lucide="music" id="musicIcon"></i>
+  </button>
+
   <!-- Canvas Background for Starfield, Firework & Glowing Heart -->
   <canvas id="heartCanvas"></canvas>
  
@@ -510,7 +564,7 @@ body.intro-mode .bottom-hint {
   <div class="ambient-glow glow-2"></div>
  
   <!-- Top Greeting Title Text -->
-  <h1 class="top-title" id="topTitle">Chúc em buổi tối vui vẻ!</h1>
+  <h1 class="top-title" id="topTitle">Chạm khẽ tim anh 1 chút thôi ✨</h1>
 
   <!-- Cinematic 3s Countdown Overlay -->
   <div class="countdown-overlay" id="countdownOverlay">
@@ -566,13 +620,52 @@ body.intro-mode .bottom-hint {
 	GATHER: 'GATHER',
 	ACTIVE: 'ACTIVE'
   };
- 
+
   let currentState = STATE.COUNTDOWN;
   let countdownTimer = null;
   let countdownCount = 3;
   let photoTimerInterval = null;
   let photoRemainingSec = 60;
   let gatherProgress = 0;
+ 
+  // --- Background Music Controls ---
+  const bgMusic = document.getElementById('bgMusic');
+  const musicToggleBtn = document.getElementById('musicToggleBtn');
+  let isMusicPlaying = false;
+
+  function playMusic() {
+	if (!bgMusic) return;
+	bgMusic.play().then(() => {
+  	isMusicPlaying = true;
+  	if (musicToggleBtn) musicToggleBtn.classList.add('playing');
+	}).catch(e => {});
+  }
+
+  function toggleMusic() {
+	if (!bgMusic) return;
+	if (isMusicPlaying) {
+  	bgMusic.pause();
+  	isMusicPlaying = false;
+  	if (musicToggleBtn) musicToggleBtn.classList.remove('playing');
+	} else {
+  	playMusic();
+	}
+  }
+
+  if (musicToggleBtn) {
+	musicToggleBtn.onclick = (e) => {
+  	e.stopPropagation();
+  	toggleMusic();
+	};
+  }
+
+  window.addEventListener('click', () => {
+	if (!isMusicPlaying) playMusic();
+  }, { once: true });
+
+  window.addEventListener('touchstart', () => {
+	if (!isMusicPlaying) playMusic();
+  }, { once: true });
  
   // --- Configuration ---
   const config = {
