@@ -630,6 +630,7 @@ body.intro-mode .bottom-hint {
  
   // --- Background Music Controls ---
   const bgMusic = document.getElementById('bgMusic');
+  if (bgMusic) bgMusic.volume = 0.5; // Âm lượng 50%
   const musicToggleBtn = document.getElementById('musicToggleBtn');
   let isMusicPlaying = false;
 
